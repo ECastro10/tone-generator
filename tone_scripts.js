@@ -13,20 +13,25 @@ var square_gain_node;
 var TrianglePlaying = false;
 var triangle_node;
 var triangle_gain_node;
-var currentFrequency;
-var sanitized = true;
+var sanitized = false;
+
+function prepareFrequency(){
+    if (sanitized == true) {
+        var useFrequency = $('#frequency_number').val();
+        useFrequency = (parseInt(useFrequency)).toFixed(2);
+        return useFrequency;
+    } else{
+        alert("Invalid Input")
+    }
+}
 
 function PlaySine() {
-    //Work on rounding up to two decimal places and then turn it into a function to prevent dupliicate of code
-    var useFrequency = $('#frequency_number').val();
-    useFrequency = useFrequency.toFixed(2);
-    console.log(useFrequency);
 
     if (SinePlaying == false) {
         var note_context = new AudioContext();
         sine_node = note_context.createOscillator();
         sine_gain_node = note_context.createGain();
-        sine_node.frequency.value = useFrequency;
+        sine_node.frequency.value = prepareFrequency();
         sine_node.type = 'sine';
         sine_gain_node.gain.value = 0;
         sine_node.connect(sine_gain_node);
@@ -42,13 +47,13 @@ function PlaySine() {
 
 }
 
-function PlaySawtooth(frequency){
+function PlaySawtooth(){
 
     if (SawtoothPlaying == false) {
         var note_context = new AudioContext();
         sawtooth_node = note_context.createOscillator();
         sawtooth_gain_node = note_context.createGain();
-        sawtooth_node.frequency.value = frequency;
+        sawtooth_node.frequency.value = prepareFrequency();
         sawtooth_node.type = 'sawtooth';
         sawtooth_gain_node.gain.value = 0;
         sawtooth_node.connect(sawtooth_gain_node);
@@ -64,13 +69,13 @@ function PlaySawtooth(frequency){
 
 }
 
-function PlaySquare(frequency){
+function PlaySquare(){
 
     if (SquarePlaying == false) {
         var note_context = new AudioContext();
         square_node = note_context.createOscillator();
         square_gain_node = note_context.createGain();
-        square_node.frequency.value = frequency;
+        square_node.frequency.value = prepareFrequency();
         square_node.type = 'square';
         square_gain_node.gain.value = 0;
         square_node.connect(square_gain_node);
@@ -86,13 +91,13 @@ function PlaySquare(frequency){
 
 }
 
-function PlayTriangle(frequency){
+function PlayTriangle(){
 
     if (TrianglePlaying == false) {
         var note_context = new AudioContext();
         triangle_node = note_context.createOscillator();
         triangle_gain_node = note_context.createGain();
-        triangle_node.frequency.value = frequency;
+        triangle_node.frequency.value = prepareFrequency();
         triangle_node.type = 'triangle';
         triangle_gain_node.gain.value = 0;
         triangle_node.connect(triangle_gain_node);
@@ -109,8 +114,22 @@ function PlayTriangle(frequency){
 }
 
 function sanitizeThis() {
-    currentFrequency = $('#frequency_number').val();
-    console.log(currentFrequency);
+    //Using regex to make sure that the input >= 10 <= 100000
+    //If there are decimals it needs at least one number after the decimal point.
+    const regex = /^([1-9][0-9]{1,4})(\.[0-9]{1,2})?$/g;
+    const currFrequency = $('#frequency_number').val();
+    var message = $('#message_bro');
+
+    if (!!currFrequency.match(regex) == false){
+
+        message.html("INVALID! example: 500 or 325.23");
+        message.css("color", "red");
+        sanitized = false;
+    } else{
+        message.css("color", "greenyellow");
+        message.html("VALID INPUT");
+        sanitized = true;
+    }
 }
 
 $('#frequency_number').val("");
